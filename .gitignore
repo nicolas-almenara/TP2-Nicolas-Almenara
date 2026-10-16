@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+.env
+
+# Volcados que genera el apagado (la carpeta se versiona vacía)
+volcados/*.json
+volcados/*.tmp
+
+# IDEs
+.idea/
+.vscode/
+
+# OS
+.DS_Store
