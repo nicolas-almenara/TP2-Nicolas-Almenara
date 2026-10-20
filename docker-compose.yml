@@ -1,0 +1,31 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Se pueden cambiar al levantar, por ejemplo:
+      #   WORKERS=32 HASH_MODO=directo docker compose up --build
+      WORKERS: ${WORKERS:-4}
+      COLA_MAX: ${COLA_MAX:-1000}
+      PROCESOS: ${PROCESOS:-}
+      HASH_MODO: ${HASH_MODO:-proceso}
+      TIMEOUT_DEFECTO: ${TIMEOUT_DEFECTO:-60}
+      LIMITE_APAGADO: ${LIMITE_APAGADO:-20}
+      CONEXIONES_MAX: ${CONEXIONES_MAX:-100}
+    volumes:
+      # Los volcados estado_<timestamp>.json quedan en ./volcados del host
+      - ./volcados:/app/volcados
+    # docker stop manda SIGTERM y, pasado este plazo, SIGKILL. Tiene que ser
+    # mayor que LIMITE_APAGADO para que el apagado ordenado llegue a terminar
+    stop_grace_period: 30s
+    depends_on:
+      - prueba
+
+  # Servidor HTTP local con demoras controladas, para medir descargas sin
+  # depender de internet. Desde la api se lo alcanza como http://prueba:8001
+  prueba:
+    build: .
+    command: ["python", "-m", "mediciones.servidor_prueba"]
+    ports:
+      - "8001:8001"
